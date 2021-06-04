@@ -70,7 +70,7 @@ public class User extends Thread implements Serializable {
 
     String printMyMessages() throws Exception {
         String myMessages = "";
-        System.out.println("----------- MY MESSAGES -----------------");
+        System.out.println("-------------- MY MESSAGES --------------");
         for(Block b : blockChain.blockChain) {
             for(Message m : b.blockMessages) {
                 if(m.receiver.equals(userName)){

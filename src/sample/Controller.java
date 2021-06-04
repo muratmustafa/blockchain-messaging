@@ -34,7 +34,7 @@ public class Controller {
     void getKeys(ActionEvent ae) throws NoSuchAlgorithmException, IOException, InterruptedException {
         String uName=user.getText();
         u = new User(uName,Main.port);
-        screen.setText("USER CREATED!!!\nHAPPY CHATTING");
+        screen.setText("USER CREATED");
         u.start();
         Thread.sleep(2000);
         u.broadcastPublicKey();

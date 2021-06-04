@@ -13,6 +13,9 @@ public class Broadcast {
 
 		InetAddress address = Network.availableInterfaces().get(0);
 
+
+
+
 		while(true) {
 			int port = sc.nextInt();
 			String msg = sc.nextLine().substring(1);
@@ -26,6 +29,11 @@ public class Broadcast {
 
 		byte[] buffer = broadcastMessage.getBytes();
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
+
+		for(int i=0; i<Network.availableInterfaces().size(); i++){
+			System.out.println("ip: " + Network.availableInterfaces().get(i));
+		}
+
 		socket.send(packet);
 		socket.close();
 	}
