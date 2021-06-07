@@ -16,10 +16,16 @@ public class Main extends Application{
 	 * Users and miner should be connected to same Wi-Fi Network
 	 */
 	public static final int port = 1111;
-	
+
+	public static Controller controllerHandle;
+
+
 	@Override
 	public void start(Stage primaryStage) throws Exception{
-		Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
+
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
+		Parent root = loader.load();
+
 		primaryStage.setTitle("Blockchain Messenger");
 		primaryStage.setScene(new Scene(root, 650, 400));
 		primaryStage.setResizable(true);
@@ -28,10 +34,8 @@ public class Main extends Application{
 
 	public static void main(String[] args) throws Exception {
 		//Miner Mode
-		/*
-		Miner pro = new Miner("pro",port);
+		Miner pro = new Miner("pro",port, controllerHandle);
 		pro.start();
-		*/
 
 		InetAddress ip;
 		String hostname;
@@ -48,8 +52,8 @@ public class Main extends Application{
 		 */
 
 		//User Mode
-		launch(args);
-		System.exit(0);
+		//launch(args);
+		//System.exit(0);
 
 	}
 }

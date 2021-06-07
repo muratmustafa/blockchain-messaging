@@ -20,6 +20,7 @@ public class User extends Thread implements Serializable {
 	Hashtable<String, PublicKey> publicKeys = new Hashtable<>();
 
 	String userName;
+	String hostIP = "10.150.19.8";
 	int port;
 	private final PrivateKey privateKey;
 	Controller controller;
@@ -66,7 +67,7 @@ public class User extends Thread implements Serializable {
 	}
 
 	private void broadCastMessage(String m) throws IOException {
-		Broadcast.broadcast(m, InetAddress.getByName("10.150.19.8"), port);
+		Broadcast.broadcast(m, InetAddress.getByName(hostIP), port);
 	}
 
 	String decryptMessage(byte[] cipherText) throws Exception {
@@ -104,9 +105,6 @@ public class User extends Thread implements Serializable {
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
 			while (true) {
-
-
-
 				serverSocket.receive(receivePacket);
 				String sentence = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
