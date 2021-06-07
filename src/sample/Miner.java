@@ -10,8 +10,8 @@ import java.security.PublicKey;
 public class Miner extends User {
 	private static final long serialVersionUID = 1L;
 
-	public Miner(String userName, int port) throws NoSuchAlgorithmException {
-		super(userName, port);	
+	public Miner(String userName, int port, Controller controller) throws NoSuchAlgorithmException {
+		super(userName, port, controller);
 	}
 
 	public void broadcastEverything() throws Exception {
