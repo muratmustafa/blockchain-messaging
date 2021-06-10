@@ -38,7 +38,7 @@ public class Controller implements Initializable {
     public TextArea logs;
 
     @FXML
-    public static TextArea chat;
+    public TextArea chat;
 
     @FXML
     void getKeys(ActionEvent ae) throws NoSuchAlgorithmException, IOException, InterruptedException {	
@@ -60,7 +60,7 @@ public class Controller implements Initializable {
     
     @FXML
     void displayAllMsgs(ActionEvent ae) throws Exception {
-        screen.setText(u.printMyMessages());
+        u.printMyMessages();
     }
 
 
@@ -72,5 +72,10 @@ public class Controller implements Initializable {
     public void setLOG(String text)
     {
         logs.setText(logs.getText() + " " + text);
+    }
+
+    public void setChat(String text)
+    {
+        chat.setText(text);
     }
 }

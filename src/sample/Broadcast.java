@@ -26,6 +26,9 @@ public class Broadcast {
 
 		byte[] buffer = broadcastMessage.getBytes();
 		DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
+
+		System.out.println(address);
+
 		socket.send(packet);
 		socket.close();
 	}

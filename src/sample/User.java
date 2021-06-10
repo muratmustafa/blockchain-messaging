@@ -67,7 +67,7 @@ public class User extends Thread implements Serializable {
 	}
 
 	private void broadCastMessage(String m) throws IOException {
-		Broadcast.broadcast(m, InetAddress.getByName(hostIP), port);
+		Broadcast.broadcast(m, Network.availableInterfaces().get(0), port);
 	}
 
 	String decryptMessage(byte[] cipherText) throws Exception {
@@ -82,6 +82,7 @@ public class User extends Thread implements Serializable {
 				if (m.receiver.equals(userName)) {
 					System.out.println(decryptMessage(m.cipherText) + "\n");
 					myMessages.append(decryptMessage(m.cipherText)).append("\n--------------------\n");
+					controller.setChat(myMessages.toString());
 				}
 			}
 		}
@@ -113,12 +114,17 @@ public class User extends Thread implements Serializable {
 				if (sentence.startsWith("BLOCKCHAIN")) {
 					String[] data = sentence.split(",");
 					blockChain = (BlockChain) SerializeObject.deserializeObject(data[1]);
+
+					printMyMessages();
+
 				} else if (sentence.startsWith("HASHTABLE")) {
 					String[] data = sentence.split(",");
 					publicKeys = (Hashtable<String, PublicKey>) SerializeObject.deserializeObject(data[1]);
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

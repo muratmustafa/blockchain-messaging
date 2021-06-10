@@ -34,8 +34,8 @@ public class Main extends Application{
 
 	public static void main(String[] args) throws Exception {
 		//Miner Mode
-		Miner pro = new Miner("pro",port, controllerHandle);
-		pro.start();
+		//Miner pro = new Miner("pro",port, controllerHandle);
+		//pro.start();
 
 		InetAddress ip;
 		String hostname;
@@ -52,8 +52,8 @@ public class Main extends Application{
 		 */
 
 		//User Mode
-		//launch(args);
-		//System.exit(0);
+		launch(args);
+		System.exit(0);
 
 	}
 }
