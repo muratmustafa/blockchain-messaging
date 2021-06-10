@@ -12,6 +12,7 @@ import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Scanner;
 
 
 public class User extends Thread implements Serializable {
@@ -74,20 +75,40 @@ public class User extends Thread implements Serializable {
 		return MessageCodec.decrypt(privateKey, cipherText);
 	}
 
-	String printMyMessages() throws Exception {
+	void printMyMessages() throws Exception {
 		StringBuilder myMessages = new StringBuilder();
+		String messages = "";
 		System.out.println("----------- MY MESSAGES -----------------");
 		for (Block b : blockChain.blockChain) {
 			for (Message m : b.blockMessages) {
 				if (m.receiver.equals(userName)) {
 					System.out.println(decryptMessage(m.cipherText) + "\n");
-					myMessages.append(decryptMessage(m.cipherText)).append("\n--------------------\n");
-					controller.setChat(myMessages.toString());
+
+					String text = decryptMessage(m.cipherText);
+					Scanner scanner = new Scanner(text);
+					String sender = scanner.nextLine();
+					String body = scanner.nextLine();
+					String date = scanner.nextLine();
+
+					String s = sender.substring(sender.lastIndexOf(":") + 1);
+					String message = body.substring(body.lastIndexOf(":") + 1);
+					//String d = date.substring(date.lastIndexOf(":") + 1);
+
+					//Date timeStamp = new Date(d);
+
+					//messages += "[" + s + "] :" +  message + " (" + timeStamp.getTime() + ")" + "\n";
+
+					messages += "[" + s + "] :" +  message + "\n";
+
+					// close the scanner
+					scanner.close();
+
+					myMessages.append(text).append("\n--------------------\n");
+					controller.setChat(messages);
 				}
 			}
 		}
 		System.out.println("-----------------------------------------");
-		return myMessages.toString();
 	}
 
 	public PublicKey getUserPublicKey(String receiverName) {

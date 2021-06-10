@@ -74,8 +74,7 @@ public class Controller implements Initializable {
         logs.setText(logs.getText() + " " + text);
     }
 
-    public void setChat(String text)
-    {
+    public void setChat(String text) {
         chat.setText(text);
     }
 }
