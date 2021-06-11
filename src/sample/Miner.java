@@ -21,7 +21,7 @@ public class Miner extends User {
 	}
 
 	void broadCastMessage(String m) throws IOException {		
-		Broadcast.broadcast(m, InetAddress.getByName("10.150.18.4"), port);
+		Broadcast.broadcast(m, Network.availableInterfaces().get(0), port);
 	}
 
 	@Override

@@ -21,7 +21,6 @@ public class User extends Thread implements Serializable {
 	Hashtable<String, PublicKey> publicKeys = new Hashtable<>();
 
 	String userName;
-	String hostIP = "10.150.19.8";
 	int port;
 	private final PrivateKey privateKey;
 	Controller controller;
