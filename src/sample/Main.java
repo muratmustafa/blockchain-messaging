@@ -37,20 +37,6 @@ public class Main extends Application{
 		//Miner pro = new Miner("pro",port, controllerHandle);
 		//pro.start();
 
-		InetAddress ip;
-		String hostname;
-		/*
-		try {
-			ip = InetAddress.getLocalHost();
-			hostname = ip.getHostName();
-			System.out.println("Your current IP address : " + ip);
-			System.out.println("Your current Hostname : " + hostname);
-
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		 */
-
 		//User Mode
 		launch(args);
 		System.exit(0);

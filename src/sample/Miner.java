@@ -31,8 +31,7 @@ public class Miner extends User {
 			DatagramSocket serverSocket = new DatagramSocket(port);
 			byte[] receiveData = new byte[65507];
 
-			System.out.printf("Listening on udp:%s:%d%n",
-					InetAddress.getLocalHost().getHostAddress(), port);     
+			System.out.printf("Listening on udp:%s:%d%n", InetAddress.getLocalHost().getHostAddress(), port);
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			while(true){
 				serverSocket.receive(receivePacket);
@@ -67,9 +66,5 @@ public class Miner extends User {
 		String hashtableData = SerializeObject.serializeObject(publicKeys);
 		String message = "HASHTABLE," + hashtableData;
 		broadCastMessage(message);
-		
 	}
-
-
-
 }

@@ -84,20 +84,20 @@ public class User extends Thread implements Serializable {
 					System.out.println(decryptMessage(m.cipherText) + "\n");
 
 					String text = decryptMessage(m.cipherText);
+
 					Scanner scanner = new Scanner(text);
-					String sender = scanner.nextLine();
-					String body = scanner.nextLine();
-					String date = scanner.nextLine();
+					String s = scanner.nextLine();
+					String ms = scanner.nextLine();
+					String d = scanner.nextLine();
 
-					String s = sender.substring(sender.lastIndexOf(":") + 1);
-					String message = body.substring(body.lastIndexOf(":") + 1);
-					//String d = date.substring(date.lastIndexOf(":") + 1);
+					String sender = s.substring(s.lastIndexOf(":") + 1);
+					String message = ms.substring(ms.lastIndexOf(":") + 1);
+					//String date = d.substring(d.lastIndexOf(":") + 1);
 
-					//Date timeStamp = new Date(d);
+					//Date timeStamp = new Date(date);
 
 					//messages += "[" + s + "] :" +  message + " (" + timeStamp.getTime() + ")" + "\n";
-
-					messages += "[" + s + "] :" +  message + "\n";
+					messages += "[" + sender + "] :" +  message + "\n";
 
 					// close the scanner
 					scanner.close();
