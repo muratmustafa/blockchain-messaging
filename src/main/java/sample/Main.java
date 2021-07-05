@@ -5,9 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import p2p.common.Const;
 
 public class Main extends Application{
 	/*
@@ -15,7 +13,7 @@ public class Main extends Application{
 	 * Change port no. if you get error like Bind Problem: Address already in use
 	 * Users and miner should be connected to same Wi-Fi Network
 	 */
-	public static final int port = 1111;
+	public static final int port = Const.PORT;
 
 	public static Controller controllerHandle;
 
@@ -23,7 +21,9 @@ public class Main extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception{
 
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
+		FXMLLoader loader=new FXMLLoader(getClass().getResource("/main.fxml"));
+
+		//FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
 		Parent root = loader.load();
 
 		primaryStage.setTitle("Blockchain Messenger");

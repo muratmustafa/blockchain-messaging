@@ -1,5 +1,9 @@
 package sample;
 
+import dao.pbft.MsgType;
+import dao.pbft.PbftMsg;
+import util.ClientUtil;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.DatagramPacket;
@@ -63,6 +67,11 @@ public class User extends Thread implements Serializable {
 		byte[] cipherText = MessageCodec.encrypt(receiverKey, plainMsg);
 		System.out.println(Arrays.toString(cipherText));
 		Message m = new Message(cipherText, receiverName);
+
+		PbftMsg msg = new PbftMsg(MsgType.PRE_PREPARE, 0);
+		msg.setBody(Arrays.toString(cipherText));
+		ClientUtil.prePrepare(msg);
+
 		broadCastMessage("MESSAGE," + SerializeObject.serializeObject(m));
 	}
 
@@ -134,17 +143,12 @@ public class User extends Thread implements Serializable {
 				if (sentence.startsWith("BLOCKCHAIN")) {
 					String[] data = sentence.split(",");
 					blockChain = (BlockChain) SerializeObject.deserializeObject(data[1]);
-
-					printMyMessages();
-
 				} else if (sentence.startsWith("HASHTABLE")) {
 					String[] data = sentence.split(",");
 					publicKeys = (Hashtable<String, PublicKey>) SerializeObject.deserializeObject(data[1]);
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

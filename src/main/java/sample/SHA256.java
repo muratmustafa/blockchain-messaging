@@ -1,7 +1,7 @@
 package sample;
 
-import java.security.MessageDigest;
 import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
 
 public class SHA256 { 
 	String getSHA256Hash(String data) {

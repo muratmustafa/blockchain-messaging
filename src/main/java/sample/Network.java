@@ -32,6 +32,7 @@ public class Network {
 			.map(a -> a.getBroadcast())
 			.filter(Objects::nonNull)
 			.forEach(broadcastList::add);
+
 		}
 		return broadcastList;
 	}

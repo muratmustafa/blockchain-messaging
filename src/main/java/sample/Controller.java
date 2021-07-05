@@ -1,16 +1,16 @@
 package sample;
 
-import java.io.IOException;
-import java.net.URL;
-import java.security.NoSuchAlgorithmException;
-import java.util.ResourceBundle;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+
+import java.io.IOException;
+import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
@@ -62,7 +62,6 @@ public class Controller implements Initializable {
     void displayAllMsgs(ActionEvent ae) throws Exception {
         u.printMyMessages();
     }
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
