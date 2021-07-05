@@ -8,11 +8,7 @@ import javafx.stage.Stage;
 import p2p.common.Const;
 
 public class Main extends Application{
-	/*
-	 * Port no. at which users and miner communicate
-	 * Change port no. if you get error like Bind Problem: Address already in use
-	 * Users and miner should be connected to same Wi-Fi Network
-	 */
+
 	public static final int port = Const.PORT;
 
 	public static Controller controllerHandle;
