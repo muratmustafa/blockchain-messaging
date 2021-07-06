@@ -4,13 +4,15 @@ package util;
 import config.StartConfig;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-public class StartPbft {
+import java.io.IOException;
 
-    public static boolean start() {
+@Slf4j
+public class StartPBFT {
+
+    public static boolean start() throws IOException {
         StartConfig startConfig = new StartConfig();
         if (startConfig.startConfig()) {
-            if (new Pbft().pubView()) {
+            if (new PBFT().pubView()) {
                 return true;
             }
         }

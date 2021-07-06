@@ -4,7 +4,7 @@ import config.AllNodeCommonMsg;
 import dao.node.Node;
 import dao.pbft.MsgCollection;
 import dao.pbft.MsgType;
-import dao.pbft.PbftMsg;
+import dao.pbft.PBFTMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.tio.client.intf.ClientAioListener;
 import org.tio.core.ChannelContext;
@@ -20,7 +20,7 @@ public class P2PClientLinstener implements ClientAioListener {
 
     private Node node = Node.getInstance();
 
-    private BlockingQueue<PbftMsg> msgQueue = MsgCollection.getInstance().getMsgQueue();
+    private BlockingQueue<PBFTMsg> msgQueue = MsgCollection.getInstance().getMsgQueue();
 
     @Override
     public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect) throws Exception {
@@ -62,7 +62,7 @@ public class P2PClientLinstener implements ClientAioListener {
 
        if (channelContext.equals(P2PConnectionMsg.CLIENTS.get(AllNodeCommonMsg.getPriIndex()))){
             node.setViewOK(false);
-            PbftMsg msg = new PbftMsg(MsgType.CHANGE_VIEW,node.getIndex());
+            PBFTMsg msg = new PBFTMsg(MsgType.CHANGE_VIEW,node.getIndex());
             msgQueue.put(msg);
             action.doAction(channelContext);
        }

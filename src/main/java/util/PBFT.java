@@ -3,23 +3,29 @@ package util;
 import config.AllNodeCommonMsg;
 import dao.node.Node;
 import dao.pbft.MsgType;
-import dao.pbft.PbftMsg;
+import dao.pbft.PBFTMsg;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+
 @Slf4j
-public class Pbft {
+public class PBFT {
 
     private Node node = Node.getInstance();
 
-    public boolean pubView() {
+    public boolean pubView() throws IOException {
         if (AllNodeCommonMsg.allNodeAddressMap.size() < 3) {
-            log.warn("区块链中的节点小于等于3");
+            log.warn("The nodes in the blockchain are less than or equal to 3");
             node.setViewOK(true);
-            ClientUtil.publishIpPort(node.getIndex(), node.getAddress().getIp(), node.getAddress().getPort());
+
+            node.broadcastPublicKey();
+
+
+            //ClientUtil.publishIpPort(node.getIndex(), node.getAddress().getIp(), node.getAddress().getPort());
             return true;
         }
 
-        PbftMsg view = new PbftMsg(MsgType.GET_VIEW, node.getIndex());
+        PBFTMsg view = new PBFTMsg(MsgType.GET_VIEW, node.getIndex());
         ClientUtil.clientPublish(view);
         return true;
     }

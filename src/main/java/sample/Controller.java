@@ -1,11 +1,13 @@
 package sample;
 
+import dao.node.Node;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import util.PBFT;
 
 import java.io.IOException;
 import java.net.URL;
@@ -14,7 +16,7 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
-    private User u;
+    private Node n;
 
     @FXML
     private TextField user;
@@ -42,31 +44,32 @@ public class Controller implements Initializable {
 
     @FXML
     void getKeys(ActionEvent ae) throws NoSuchAlgorithmException, IOException, InterruptedException {	
-        String uName=user.getText();
-        u = new User(uName, Main.port, this);
-        logs.setText("USER CREATED");
-        u.start();
-        Thread.sleep(500);
-        u.broadcastPublicKey();
-        get.setDisable(true);
+        String uName = user.getText();
+        n = Node.getInstance();
+        n.setIndex(0);
+        n.setUserName(uName);
+        logs.setText("NODE CREATED");
+
+        if (new PBFT().pubView()) {
+            n.start();
+            Thread.sleep(500);
+            //n.broadcastPublicKey();
+            get.setDisable(true);
+        }else{
+            System.exit(-1);
+        }
+
     }    
     
     @FXML
     void sendMsg(ActionEvent ae) throws Exception {
         String recName = rec.getText();
         String msg = screen.getText();
-        u.createMessage(msg, recName);
-    }
-    
-    @FXML
-    void displayAllMsgs(ActionEvent ae) throws Exception {
-        u.printMyMessages();
+        n.createMessage(msg, recName);
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
-    }
+    public void initialize(URL location, ResourceBundle resources) {}
 
     public void setLOG(String text)
     {

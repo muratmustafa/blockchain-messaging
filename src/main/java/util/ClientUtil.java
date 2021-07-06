@@ -6,12 +6,11 @@ import dao.bean.ReplayJson;
 import dao.node.Node;
 import dao.pbft.MsgCollection;
 import dao.pbft.MsgType;
-import dao.pbft.PbftMsg;
+import dao.pbft.PBFTMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.tio.client.ClientChannelContext;
 import org.tio.client.ClientTioConfig;
 import org.tio.client.ReconnConf;
-import org.tio.client.TioClient;
 import org.tio.core.Tio;
 import p2p.P2PConnectionMsg;
 import p2p.client.ClientAction;
@@ -19,7 +18,10 @@ import p2p.client.P2PClientLinstener;
 import p2p.client.P2pClientAioHandler;
 import p2p.common.Const;
 import p2p.common.MsgPacket;
+import sample.Broadcast;
+import sample.Network;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 @Slf4j
@@ -31,7 +33,7 @@ public class ClientUtil {
             new ReconnConf(Const.TIMEOUT)
     );
 
-    public static ClientChannelContext clientConnect(String ip, int port) {
+    /*public static ClientChannelContext clientConnect(String ip, int port) {
 
         clientTioConfig.setHeartbeatTimeout(Const.TIMEOUT);
         ClientChannelContext context;
@@ -43,7 +45,7 @@ public class ClientUtil {
             log.error("%s：%d" + e.getMessage());
             return null;
         }
-    }
+    }*/
 
     public static void addClient(int index, ClientChannelContext client) {
         P2PConnectionMsg.CLIENTS.put(index, client);
@@ -57,9 +59,20 @@ public class ClientUtil {
         }
     }
 
-    public static void clientPublish(PbftMsg msg) {
+    public static void clientPublish(PBFTMsg msg) throws IOException {
         msg.setNode(Node.getInstance().getIndex());
         msg.setToNode(-1);
+
+        if (msg.getMsgType() != MsgType.CLIENT_REPLAY && msg.getMsgType() != MsgType.GET_VIEW) {
+            if (!MsgUtil.preMsg(0, msg)) {
+                log.error("Error");
+                return;
+            }
+        }
+
+        String json = JSON.toJSONString(msg);
+
+        Broadcast.broadcast(json, Network.availableInterfaces().get(0), Const.PORT);
 
         for (int index : P2PConnectionMsg.CLIENTS.keySet()) {
             ClientChannelContext client = P2PConnectionMsg.CLIENTS.get(index);
@@ -70,7 +83,11 @@ public class ClientUtil {
                     return;
                 }
             }
-            String json = JSON.toJSONString(msg);
+            //String json = JSON.toJSONString(msg);
+
+            Broadcast.broadcast(json, Network.availableInterfaces().get(0), Const.PORT);
+
+
             MsgPacket msgPacket = new MsgPacket();
             try {
                 msgPacket.setBody(json.getBytes(MsgPacket.CHARSET));
@@ -81,22 +98,22 @@ public class ClientUtil {
         }
     }
 
-    public static void publishIpPort(int index, String ip, int port) {
-        PbftMsg replayMsg = new PbftMsg(MsgType.CLIENT_REPLAY, index);
+    public static void publishIpPort(int index, String ip, int port) throws IOException {
+        PBFTMsg replayMsg = new PBFTMsg(MsgType.CLIENT_REPLAY, index);
         replayMsg.setViewNum(AllNodeCommonMsg.view);
 
         ReplayJson replayJson = new ReplayJson();
         replayJson.setIp(ip);
         replayJson.setPort(port);
 
-        replayJson.setPublicKey(Node.getInstance().getPublicKey());
+        //replayJson.setPublicKey(Node.getInstance().getPublicKey());
 
         replayMsg.setBody(JSON.toJSONString(replayJson));
         ClientUtil.clientPublish(replayMsg);
         log.info(String.format("%s", replayMsg));
     }
 
-    public static void prePrepare(PbftMsg msg) {
+    public static void prePrepare(PBFTMsg msg) throws IOException {
 
         Node node = Node.getInstance();
 
@@ -113,7 +130,7 @@ public class ClientUtil {
         MsgCollection msgCollection = MsgCollection.getInstance();
         msg.setMsgType(MsgType.PREPARE);
         msgCollection.getVotePrePrepare().add(msg.getId());
-        if (!PbftUtil.checkMsg(msg)) {
+        if (!PBFTUtil.checkMsg(msg)) {
             return;
         }
         try {

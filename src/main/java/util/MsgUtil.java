@@ -4,7 +4,7 @@ import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import config.AllNodeCommonMsg;
 import dao.node.Node;
-import dao.pbft.PbftMsg;
+import dao.pbft.PBFTMsg;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -16,13 +16,13 @@ public class MsgUtil {
 
     private static Map<Integer, String> publicKeyMap = AllNodeCommonMsg.publicKeyMap;
 
-    public static void signMsg(PbftMsg msg) {
+    public static void signMsg(PBFTMsg msg) {
         String hash = String.valueOf(msg.hashCode());
         String sign = selfRsa.encryptBase64(hash, KeyType.PrivateKey);
         msg.setSign(sign);
     }
 
-    private static boolean encryptMsg(int index, PbftMsg msg) {
+    private static boolean encryptMsg(int index, PBFTMsg msg) {
         String publicKey;
         if ((publicKey = publicKeyMap.get(index)) == null) {
             log.error("Error");
@@ -46,7 +46,7 @@ public class MsgUtil {
         return true;
     }
 
-    private static boolean decryptMsg(PbftMsg msg) {
+    private static boolean decryptMsg(PBFTMsg msg) {
         if (msg.getBody() == null) {
             log.warn("Warning");
             return true;
@@ -62,7 +62,7 @@ public class MsgUtil {
         return true;
     }
 
-    public static boolean preMsg(int index, PbftMsg msg) {
+    public static boolean preMsg(int index, PBFTMsg msg) {
         if (!encryptMsg(index, msg)) {
             return false;
         }
@@ -70,14 +70,14 @@ public class MsgUtil {
         return true;
     }
 
-    public static boolean afterMsg(PbftMsg msg) {
+    public static boolean afterMsg(PBFTMsg msg) {
         if (!isRealMsg(msg) || !decryptMsg(msg)) {
             return false;
         }
         return true;
     }
 
-    public static boolean isRealMsg(PbftMsg msg) {
+    public static boolean isRealMsg(PBFTMsg msg) {
         String publicKey = publicKeyMap.get(msg.getNode());
         RSA rsa;
         try {

@@ -3,7 +3,7 @@ package util;
 import config.AllNodeCommonMsg;
 import dao.bean.DbDao;
 import dao.pbft.MsgCollection;
-import dao.pbft.PbftMsg;
+import dao.pbft.PBFTMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
@@ -92,7 +92,7 @@ public class DbUtil {
 
     }
 
-    public static void addDaotoList(int node, PbftMsg msg) {
+    public static void addDaotoList(int node, PBFTMsg msg) {
         DbDao dbDao = new DbDao();
         dbDao.setNode(node);
         dbDao.setPublicKey(AllNodeCommonMsg.publicKeyMap.get(node));

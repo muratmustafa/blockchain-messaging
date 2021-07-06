@@ -23,7 +23,7 @@ public class MsgCollection {
         return msgCollection;
     }
 
-    private BlockingQueue<PbftMsg> msgQueue = new LinkedBlockingQueue<PbftMsg>();
+    private BlockingQueue<PBFTMsg> msgQueue = new LinkedBlockingQueue<PBFTMsg>();
 
     private AtomicLongMap<Integer> viewNumCount = AtomicLongMap.create();
 

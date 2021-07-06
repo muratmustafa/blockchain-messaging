@@ -1,5 +1,6 @@
 package sample;
 
+import dao.node.Miner;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,18 +10,14 @@ import p2p.common.Const;
 
 public class Main extends Application{
 
-	public static final int port = Const.PORT;
-
 	public static Controller controllerHandle;
-
 
 	@Override
 	public void start(Stage primaryStage) throws Exception{
 
-		FXMLLoader loader=new FXMLLoader(getClass().getResource("/main.fxml"));
-
-		//FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/main.fxml"));
 		Parent root = loader.load();
+		controllerHandle = loader.getController();
 
 		primaryStage.setTitle("Blockchain Messenger");
 		primaryStage.setScene(new Scene(root, 650, 400));
@@ -29,11 +26,11 @@ public class Main extends Application{
 	}
 
 	public static void main(String[] args) throws Exception {
-		//Miner Mode
-		//Miner pro = new Miner("pro",port, controllerHandle);
+		/*Miner Mode*/
+		//Miner pro = new Miner();
 		//pro.start();
 
-		//User Mode
+		/*User Mode*/
 		launch(args);
 		System.exit(0);
 

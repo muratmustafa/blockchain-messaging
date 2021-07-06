@@ -9,8 +9,10 @@ import dao.node.NodeBasicInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.tio.client.ClientChannelContext;
 import p2p.P2PConnectionMsg;
+import p2p.server.P2PServerAioHandler;
+import p2p.server.ServerListener;
 import util.ClientUtil;
-import util.PbftUtil;
+import util.PBFTUtil;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,10 +23,10 @@ public class StartConfig {
     public static String basePath;
 
     public boolean startConfig() {
-        return initAddress()  && initClient();
+        return true;
     }
 
-    private boolean initClient() {
+    /*private boolean initClient() {
         P2PConnectionMsg.CLIENTS = new ConcurrentHashMap<>(AllNodeCommonMsg.allNodeAddressMap.size());
 
         for (NodeBasicInfo basicInfo : AllNodeCommonMsg.allNodeAddressMap.values()) {
@@ -39,9 +41,9 @@ public class StartConfig {
         }
         log.info("Client" + P2PConnectionMsg.CLIENTS.size());
         return true;
-    }
+    }*/
 
-    /*
+
     private boolean initServer() {
 
         ServerAioHandler handler = new P2PServerAioHandler();
@@ -60,10 +62,10 @@ public class StartConfig {
         }
         return true;
     }
-    */
+
 
     private boolean initAddress() {
-        FileReader fileReader = new FileReader(PbftUtil.ipJsonPath);
+        FileReader fileReader = new FileReader(PBFTUtil.ipJsonPath);
         List<String> ipJsonStr = fileReader.readLines();
         for (String s : ipJsonStr) {
             ReplayJson replayJson = JSON.parseObject(s, ReplayJson.class);
@@ -78,7 +80,7 @@ public class StartConfig {
         }
 
         if (AllNodeCommonMsg.allNodeAddressMap.values().size() < 3 && !AllNodeCommonMsg.allNodeAddressMap.containsKey(node.getIndex())) {
-            PbftUtil.writeIpToFile(node);
+            PBFTUtil.writeIpToFile(node);
             return true;
         }
         if (AllNodeCommonMsg.allNodeAddressMap.containsKey(node.getIndex())) {

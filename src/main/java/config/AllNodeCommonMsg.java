@@ -21,7 +21,7 @@ public class AllNodeCommonMsg {
         return view % getSize();
     }
 
-    public static ConcurrentHashMap<Integer, NodeBasicInfo> allNodeAddressMap = new ConcurrentHashMap<>(2 << 10);
+    public static ConcurrentHashMap<Integer, NodeBasicInfo> allNodeAddressMap = new ConcurrentHashMap<>(100);
 
     public static Map<Integer,String> publicKeyMap = new ConcurrentHashMap<>(2<<10);
 

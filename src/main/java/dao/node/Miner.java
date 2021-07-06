@@ -1,4 +1,6 @@
-package sample;
+package dao.node;
+
+import sample.*;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -7,11 +9,11 @@ import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
-public class Miner extends User {
+public class Miner extends Node {
 	private static final long serialVersionUID = 1L;
 
-	public Miner(String userName, int port, Controller controller) throws NoSuchAlgorithmException {
-		super(userName, port, controller);
+	public Miner() throws NoSuchAlgorithmException {
+		super();
 	}
 
 	public void broadcastEverything() throws Exception {

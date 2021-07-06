@@ -8,8 +8,8 @@ public class Block implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	int blockSize;
-	String blockHash;
-	List<Message> blockMessages;
+	private String blockHash;
+	public List<Message> blockMessages;
 	String parentHash;
 
 	public Block(int blockSize, String parentHash) {

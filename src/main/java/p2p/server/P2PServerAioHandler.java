@@ -1,85 +1,82 @@
-package p2p.client;
+package p2p.server;
+
 
 import com.alibaba.fastjson.JSON;
-import dao.pbft.MsgCollection;
 import dao.pbft.MsgType;
 import dao.pbft.PBFTMsg;
 import lombok.extern.slf4j.Slf4j;
-import org.tio.client.intf.ClientAioHandler;
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.Packet;
+import org.tio.server.intf.ServerAioHandler;
 import p2p.common.MsgPacket;
 import util.MsgUtil;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.BlockingQueue;
 
 @Slf4j
-public class P2pClientAioHandler implements ClientAioHandler {
+public class P2PServerAioHandler implements ServerAioHandler {
 
-    private static MsgPacket heartPacket = new MsgPacket();
-
-    private BlockingQueue<PBFTMsg> msgQueue = MsgCollection.getInstance().getMsgQueue();
-
-    @Override
-    public Packet heartbeatPacket(ChannelContext channelContext) {
-        return heartPacket;
-    }
+    private ServerAction action = ServerAction.getInstance();
 
     @Override
     public Packet decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws AioDecodeException {
-
 
         if (readableLength < MsgPacket.HEADER_LENGHT) {
             return null;
         }
 
         int bodyLength = buffer.getInt();
+
         if (bodyLength < 0) {
-            throw new AioDecodeException("body length is invalid.romote: " + channelContext.getServerNode());
+            throw new AioDecodeException("bodyLength [" + bodyLength + "] is not right, remote:" + channelContext.getClientNode());
         }
 
-        int usefulLength = MsgPacket.HEADER_LENGHT + bodyLength;
+        int neededLength = MsgPacket.HEADER_LENGHT + bodyLength;
 
-        if (usefulLength > readableLength) {
+        if (readableLength < neededLength) {
             return null;
         } else {
-            MsgPacket packet = new MsgPacket();
-            byte[] body = new byte[bodyLength];
-            buffer.get(body);
-            packet.setBody(body);
-            return packet;
+            MsgPacket imPacket = new MsgPacket();
+            if (bodyLength > 0) {
+                byte[] dst = new byte[bodyLength];
+                buffer.get(dst);
+                imPacket.setBody(dst);
+            }
+            return imPacket;
         }
-
     }
 
     @Override
     public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext) {
         MsgPacket msgPacket = (MsgPacket) packet;
         byte[] body = msgPacket.getBody();
-
-        int bodyLength = 0;
-
-        if (body != null) {
-            bodyLength = body.length;
-        }
-
-        int len = MsgPacket.HEADER_LENGHT + bodyLength;
-
-        ByteBuffer byteBuffer = ByteBuffer.allocate(len);
-        byteBuffer.order(tioConfig.getByteOrder());
-        byteBuffer.putInt(bodyLength);
+        int bodyLen = 0;
 
         if (body != null) {
-            byteBuffer.put(body);
+            bodyLen = body.length;
         }
-        return byteBuffer;
+
+        int allLen = MsgPacket.HEADER_LENGHT + bodyLen;
+
+        ByteBuffer buffer = ByteBuffer.allocate(allLen);
+
+        buffer.order(tioConfig.getByteOrder());
+
+
+        buffer.putInt(bodyLen);
+
+
+        if (body != null) {
+            buffer.put(body);
+        }
+        return buffer;
     }
 
     @Override
     public void handler(Packet packet, ChannelContext channelContext) throws Exception {
+
         MsgPacket msgPacket = (MsgPacket) packet;
         byte[] body = msgPacket.getBody();
 
@@ -92,16 +89,19 @@ public class P2pClientAioHandler implements ClientAioHandler {
         if (!JSON.isValid(msg)) {
             return;
         }
+
+        log.info("Info: " + msg);
         PBFTMsg pbftMsg = JSON.parseObject(msg, PBFTMsg.class);
         if (pbftMsg == null) {
             log.error("Error");
             return;
         }
 
-        if (pbftMsg.getMsgType() != MsgType.GET_VIEW && !MsgUtil.afterMsg(pbftMsg)) {
+        if ((pbftMsg.getMsgType() != MsgType.CLIENT_REPLAY && pbftMsg.getMsgType() != MsgType.GET_VIEW) && !MsgUtil.afterMsg(pbftMsg)) {
             log.warn("Warning");
             return;
         }
-        this.msgQueue.put(pbftMsg);
+
+        action.doAction(channelContext, pbftMsg);
     }
 }

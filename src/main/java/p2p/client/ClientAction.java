@@ -4,12 +4,14 @@ import config.AllNodeCommonMsg;
 import dao.node.Node;
 import dao.pbft.MsgCollection;
 import dao.pbft.MsgType;
-import dao.pbft.PbftMsg;
+import dao.pbft.PBFTMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.tio.core.ChannelContext;
 import util.ClientUtil;
 import util.MsgUtil;
-import util.PbftUtil;
+import util.PBFTUtil;
+
+import java.io.IOException;
 
 @Slf4j
 public class ClientAction {
@@ -27,7 +29,7 @@ public class ClientAction {
 
     public void doAction(ChannelContext channelContext) {
         try {
-            PbftMsg msg = collection.getMsgQueue().take();
+            PBFTMsg msg = collection.getMsgQueue().take();
 
             if (!node.isViewOK() && msg.getMsgType() != MsgType.GET_VIEW && msg.getMsgType() != MsgType.CHANGE_VIEW) {
                 collection.getMsgQueue().put(msg);
@@ -48,26 +50,26 @@ public class ClientAction {
                 default:
                     break;
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | IOException e) {
             log.debug(String.format("%s", e.getMessage()));
         }
     }
 
-    private void commit(PbftMsg msg) {
+    private void commit(PBFTMsg msg) throws IOException {
         ClientUtil.clientPublish(msg);
     }
 
-    private void prepare(PbftMsg msg) {
+    private void prepare(PBFTMsg msg) throws IOException {
         ClientUtil.clientPublish(msg);
     }
 
-    private void onChangeView(PbftMsg msg) {
+    private void onChangeView(PBFTMsg msg) throws IOException {
         int viewNum = AllNodeCommonMsg.view + 1;
         msg.setViewNum(viewNum);
         ClientUtil.clientPublish(msg);
     }
 
-    synchronized private void getView(PbftMsg msg) {
+    synchronized private void getView(PBFTMsg msg) {
         int fromNode = msg.getNode();
         if (node.isViewOK()) {
             return;
@@ -88,8 +90,8 @@ public class ClientAction {
             node.setViewOK(true);
             AllNodeCommonMsg.view = msg.getViewNum();
 
-            PbftUtil.writeIpToFile(node);
-            ClientUtil.publishIpPort(node.getIndex(), node.getAddress().getIp(), node.getAddress().getPort());
+            PBFTUtil.writeIpToFile(node);
+            //ClientUtil.publishIpPort(node.getIndex(), node.getAddress().getIp(), node.getAddress().getPort());
         }
     }
 

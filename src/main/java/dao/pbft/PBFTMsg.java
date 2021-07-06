@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Objects;
 
 @Data
-public class PbftMsg {
+public class PBFTMsg {
 
     private int msgType;
 
@@ -27,10 +27,10 @@ public class PbftMsg {
 
     private String sign;
 
-    private PbftMsg() {
+    private PBFTMsg() {
     }
 
-    public PbftMsg(int msgType, int node) {
+    public PBFTMsg(int msgType, int node) {
         this.msgType = msgType;
         this.node = node;
         this.time = System.currentTimeMillis();
@@ -44,10 +44,10 @@ public class PbftMsg {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PbftMsg)) {
+        if (!(o instanceof PBFTMsg)) {
             return false;
         }
-        PbftMsg msg = (PbftMsg) o;
+        PBFTMsg msg = (PBFTMsg) o;
         return  getMsgType() == msg.getMsgType() &&
                 getNode() == msg.getNode() &&
                 getToNode() == msg.getToNode() &&

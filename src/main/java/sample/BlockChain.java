@@ -6,7 +6,7 @@ import java.util.List;
 
 public class BlockChain implements Serializable {
 	private static final long serialVersionUID = 1L;
-	List<Block> blockChain;
+	public List<Block> blockChain;
 	int maxMessages;
 	
 	public BlockChain(int maxMessages) {
@@ -23,7 +23,7 @@ public class BlockChain implements Serializable {
 		}
 		Block lastBlock = blockChain.remove(blockChain.size()-1);
 		if(lastBlock.blockMessages.size() == maxMessages) {
-			Block nextBlock = new Block(maxMessages, lastBlock.blockHash);
+			Block nextBlock = new Block(maxMessages, lastBlock.getHash());
 			nextBlock.addMessage(m);
 			blockChain.add(lastBlock);
 			blockChain.add(nextBlock);
