@@ -44,7 +44,7 @@ public class StartConfig {
     }*/
 
 
-    private boolean initServer() {
+    /*private boolean initServer() {
 
         ServerAioHandler handler = new P2PServerAioHandler();
 
@@ -61,7 +61,7 @@ public class StartConfig {
             return false;
         }
         return true;
-    }
+    }*/
 
 
     private boolean initAddress() {

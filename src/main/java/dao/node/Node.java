@@ -1,5 +1,6 @@
 package dao.node;
 
+import com.alibaba.fastjson.JSON;
 import dao.pbft.MsgType;
 import dao.pbft.PBFTMsg;
 import lombok.Data;
@@ -65,9 +66,15 @@ public class Node extends Thread implements Serializable {
     }
 
     public void broadcastPublicKey() throws IOException {
+
+        PBFTMsg replayMsg = new PBFTMsg(MsgType.CLIENT_REPLAY, index);
+
         String pubKey = SerializeObject.serializeObject(publicKey);
         Main.controllerHandle.setLOG(pubKey);
-        broadCastMessage("NEWUSER," + userName + "," + pubKey);
+
+        replayMsg.setBody(pubKey);
+
+        broadCastMessage("NEWUSER," + userName + "," + JSON.toJSONString(replayMsg));
     }
 
     @Override

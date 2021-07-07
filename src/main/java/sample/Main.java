@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.apache.log4j.BasicConfigurator;
 import p2p.common.Const;
 
 public class Main extends Application{
@@ -26,6 +27,8 @@ public class Main extends Application{
 	}
 
 	public static void main(String[] args) throws Exception {
+		BasicConfigurator.configure();
+
 		/*Miner Mode*/
 		//Miner pro = new Miner();
 		//pro.start();

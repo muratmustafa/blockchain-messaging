@@ -73,44 +73,10 @@ public class ClientUtil {
         String json = JSON.toJSONString(msg);
 
         Broadcast.broadcast(json, Network.availableInterfaces().get(0), Const.PORT);
-
-        for (int index : P2PConnectionMsg.CLIENTS.keySet()) {
-            ClientChannelContext client = P2PConnectionMsg.CLIENTS.get(index);
-
-            if (msg.getMsgType() != MsgType.CLIENT_REPLAY && msg.getMsgType() != MsgType.GET_VIEW) {
-                if (!MsgUtil.preMsg(index, msg)) {
-                    log.error("Error");
-                    return;
-                }
-            }
-            //String json = JSON.toJSONString(msg);
-
-            Broadcast.broadcast(json, Network.availableInterfaces().get(0), Const.PORT);
-
-
-            MsgPacket msgPacket = new MsgPacket();
-            try {
-                msgPacket.setBody(json.getBytes(MsgPacket.CHARSET));
-                Tio.send(client, msgPacket);
-            } catch (UnsupportedEncodingException e) {
-                log.error("Error: " + e.getMessage());
-            }
-        }
     }
 
-    public static void publishIpPort(int index, String ip, int port) throws IOException {
-        PBFTMsg replayMsg = new PBFTMsg(MsgType.CLIENT_REPLAY, index);
-        replayMsg.setViewNum(AllNodeCommonMsg.view);
-
-        ReplayJson replayJson = new ReplayJson();
-        replayJson.setIp(ip);
-        replayJson.setPort(port);
-
-        //replayJson.setPublicKey(Node.getInstance().getPublicKey());
-
-        replayMsg.setBody(JSON.toJSONString(replayJson));
-        ClientUtil.clientPublish(replayMsg);
-        log.info(String.format("%s", replayMsg));
+    public static void publishPublicKey() throws IOException {
+        Node.getInstance().broadcastPublicKey();
     }
 
     public static void prePrepare(PBFTMsg msg) throws IOException {
