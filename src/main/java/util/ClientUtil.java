@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.tio.client.ClientChannelContext;
 import org.tio.client.ClientTioConfig;
 import org.tio.client.ReconnConf;
+import org.tio.client.TioClient;
 import org.tio.core.Tio;
 import p2p.P2PConnectionMsg;
 import p2p.client.ClientAction;
@@ -33,7 +34,7 @@ public class ClientUtil {
             new ReconnConf(Const.TIMEOUT)
     );
 
-    /*public static ClientChannelContext clientConnect(String ip, int port) {
+    public static ClientChannelContext clientConnect(String ip, int port) {
 
         clientTioConfig.setHeartbeatTimeout(Const.TIMEOUT);
         ClientChannelContext context;
@@ -45,7 +46,7 @@ public class ClientUtil {
             log.error("%s：%d" + e.getMessage());
             return null;
         }
-    }*/
+    }
 
     public static void addClient(int index, ClientChannelContext client) {
         P2PConnectionMsg.CLIENTS.put(index, client);

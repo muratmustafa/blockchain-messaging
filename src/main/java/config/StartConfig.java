@@ -8,12 +8,18 @@ import dao.node.NodeAddress;
 import dao.node.NodeBasicInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.tio.client.ClientChannelContext;
+import org.tio.server.ServerTioConfig;
+import org.tio.server.TioServer;
+import org.tio.server.intf.ServerAioHandler;
+import org.tio.server.intf.ServerAioListener;
 import p2p.P2PConnectionMsg;
+import p2p.common.Const;
 import p2p.server.P2PServerAioHandler;
 import p2p.server.ServerListener;
 import util.ClientUtil;
 import util.PBFTUtil;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,7 +50,7 @@ public class StartConfig {
     }*/
 
 
-    /*private boolean initServer() {
+    private boolean initServer() {
 
         ServerAioHandler handler = new P2PServerAioHandler();
 
@@ -54,14 +60,9 @@ public class StartConfig {
 
         config.setHeartbeatTimeout(Const.TIMEOUT);
         TioServer tioServer = new TioServer(config);
-        try {
-            tioServer.start(node.getAddress().getIp(), node.getAddress().getPort());
-        } catch (IOException e) {
-            log.error("Error" + e.getMessage());
-            return false;
-        }
+        //tioServer.start(node.getAddress().getIp(), node.getAddress().getPort());
         return true;
-    }*/
+    }
 
 
     private boolean initAddress() {
@@ -70,8 +71,8 @@ public class StartConfig {
         for (String s : ipJsonStr) {
             ReplayJson replayJson = JSON.parseObject(s, ReplayJson.class);
             NodeAddress nodeAddress = new NodeAddress();
-            nodeAddress.setIp(replayJson.getIp());
-            nodeAddress.setPort(replayJson.getPort());
+            //nodeAddress.setIp(replayJson.getIp());
+            //nodeAddress.setPort(replayJson.getPort());
             NodeBasicInfo nodeBasicInfo = new NodeBasicInfo();
             nodeBasicInfo.setAddress(nodeAddress);
             nodeBasicInfo.setIndex(replayJson.getIndex());

@@ -139,8 +139,8 @@ public class ServerAction {
             //ClientChannelContext context = ClientUtil.clientConnect(replayJson.getIp(), replayJson.getPort());
 
             NodeAddress address = new NodeAddress();
-            address.setIp(replayJson.getIp());
-            address.setPort(replayJson.getPort());
+            //address.setIp(replayJson.getIp());
+            //address.setPort(replayJson.getPort());
             NodeBasicInfo info = new NodeBasicInfo();
             info.setIndex(msg.getNode());
             info.setAddress(address);

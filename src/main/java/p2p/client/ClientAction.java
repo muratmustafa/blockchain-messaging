@@ -15,10 +15,10 @@ import java.io.IOException;
 
 @Slf4j
 public class ClientAction {
-    private MsgCollection collection = MsgCollection.getInstance();
-    private Node node = Node.getInstance();
+    private final MsgCollection collection = MsgCollection.getInstance();
+    private final Node node = Node.getInstance();
 
-    private static ClientAction action = new ClientAction();
+    private static final ClientAction action = new ClientAction();
 
     public static ClientAction getInstance() {
         return action;

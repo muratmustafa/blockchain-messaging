@@ -1,13 +1,23 @@
 package dao.node;
 
 import com.alibaba.fastjson.JSON;
+import config.AllNodeCommonMsg;
+import dao.bean.ReplayJson;
+import dao.pbft.MsgCollection;
 import dao.pbft.MsgType;
 import dao.pbft.PBFTMsg;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
+import org.tio.core.ChannelContext;
+import org.tio.core.intf.Packet;
+import p2p.client.ClientAction;
 import p2p.common.Const;
+import p2p.common.MsgPacket;
 import sample.*;
 import util.ClientUtil;
+import util.MsgUtil;
+import util.PBFTUtil;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -22,9 +32,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Slf4j
 public class Node extends Thread implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,6 +53,8 @@ public class Node extends Thread implements Serializable {
     protected int port = Const.PORT;
 
     public BlockChain blockChain;
+
+    private BlockingQueue<PBFTMsg> msgQueue = MsgCollection.getInstance().getMsgQueue();
 
     private static Node node;
 
@@ -165,20 +179,88 @@ public class Node extends Thread implements Serializable {
 
             while (true) {
                 serverSocket.receive(receivePacket);
-                String sentence = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                String packet = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
-                System.out.println("\nRECEIVED --> " + sentence);
+                System.out.println("\nRECEIVED --> " + packet);
 
-                if (sentence.startsWith("BLOCKCHAIN")) {
-                    String[] data = sentence.split(",");
+                handler(packet);
+
+                if (packet.startsWith("BLOCKCHAIN")) {
+                    String[] data = packet.split(",");
                     blockChain = (BlockChain) SerializeObject.deserializeObject(data[1]);
-                } else if (sentence.startsWith("HASHTABLE")) {
-                    String[] data = sentence.split(",");
+                } else if (packet.startsWith("HASHTABLE")) {
+                    String[] data = packet.split(",");
                     publicKeys = (Hashtable<String, PublicKey>) SerializeObject.deserializeObject(data[1]);
                 }
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void doAction(PBFTMsg msg){
+        switch (msg.getMsgType()) {
+            case MsgType.GET_VIEW:
+                getView();
+                break;
+            case MsgType.CHANGE_VIEW:
+                changeView();
+                break;
+            case MsgType.PRE_PREPARE:
+                prePrepare();
+                break;
+            case MsgType.PREPARE:
+                prepare();
+                break;
+            case MsgType.COMMIT:
+                commit();
+            case MsgType.CLIENT_REPLAY:
+                addClient();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void addClient() {
+
+    }
+
+    private void getView() {
+
+    }
+
+    private void prePrepare() {
+
+    }
+
+    private void prepare(){
+
+    }
+
+    private void commit(){
+
+    }
+
+    private void changeView(){
+
+    }
+
+    public void handler(String packet) throws Exception {
+        if (!JSON.isValid(packet)) {
+            return;
+        }
+        PBFTMsg pbftMsg = JSON.parseObject(packet, PBFTMsg.class);
+        if (pbftMsg == null) {
+            log.error("Error");
+            return;
+        }
+
+        if (pbftMsg.getMsgType() != MsgType.GET_VIEW && !MsgUtil.afterMsg(pbftMsg)) {
+            log.warn("Warning");
+            return;
+        }
+        //this.msgQueue.put(pbftMsg);
+        doAction(pbftMsg);
     }
 }
