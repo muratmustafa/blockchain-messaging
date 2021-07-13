@@ -9,6 +9,8 @@ import java.util.Objects;
 @Data
 public class PBFTMsg {
 
+    private String userName;
+
     private int msgType;
 
     private int node;

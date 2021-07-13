@@ -1,6 +1,12 @@
 package dao.node;
 
+import com.alibaba.fastjson.JSON;
+import dao.pbft.MsgType;
+import dao.pbft.PBFTMsg;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import sample.*;
+import util.MsgUtil;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -9,6 +15,8 @@ import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
+@Data
+@Slf4j
 public class Miner extends Node {
 	private static final long serialVersionUID = 1L;
 
@@ -37,17 +45,21 @@ public class Miner extends Node {
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			while(true){
 				serverSocket.receive(receivePacket);
-				String sentence = new String( receivePacket.getData(), 0, receivePacket.getLength() );
-				System.out.println("\nRECEIVED --> " + sentence);
-				if(sentence.startsWith("MESSAGE")) {
-					String[] data = sentence.split(",");
-					Message m = (Message) SerializeObject.deserializeObject(data[1]);
+				String packet = new String( receivePacket.getData(), 0, receivePacket.getLength() );
+				System.out.println("\nRECEIVED --> " + packet);
+
+				PBFTMsg pbftMsg = JSON.parseObject(packet, PBFTMsg.class);
+
+
+				if(pbftMsg.getMsgType() == MsgType.MESSAGE) {
+
+					Message m = (Message) SerializeObject.deserializeObject(pbftMsg.getBody());
 					blockChain.addMessage(m);
 					broadcastEverything();
-				}else if(sentence.startsWith("NEWUSER")) {
-					String[] data = sentence.split(",");
-					String newUserName = data[1];
-					PublicKey newPublicKey = (PublicKey) SerializeObject.deserializeObject(data[2]);
+				}else if(pbftMsg.getMsgType() == MsgType.NEW_USER) {
+					String[] data = packet.split(",");
+					String newUserName = pbftMsg.getUserName();
+					PublicKey newPublicKey = (PublicKey) SerializeObject.deserializeObject(pbftMsg.getBody());
 					if(publicKeys.containsKey(newUserName)) {
 						broadCastMessage("DENIEDNEWUSER," + newUserName);
 					}
@@ -66,7 +78,78 @@ public class Miner extends Node {
 
 	private void broadcastAllPublicKeys() throws IOException {
 		String hashtableData = SerializeObject.serializeObject(publicKeys);
-		String message = "HASHTABLE," + hashtableData;
-		broadCastMessage(message);
+		//String message = "HASHTABLE," + hashtableData;
+
+		PBFTMsg message = new PBFTMsg(MsgType.HASHTABLE, -1);
+
+		message.setBody(hashtableData);
+
+		broadCastMessage(JSON.toJSONString(message));
+	}
+
+	public void doAction(PBFTMsg msg){
+		switch (msg.getMsgType()) {
+			case MsgType.GET_VIEW:
+				getView();
+				break;
+			case MsgType.CHANGE_VIEW:
+				changeView();
+				break;
+			case MsgType.PRE_PREPARE:
+				prePrepare();
+				break;
+			case MsgType.PREPARE:
+				prepare();
+				break;
+			case MsgType.COMMIT:
+				commit();
+			case MsgType.CLIENT_REPLAY:
+				addClient();
+				break;
+			default:
+				break;
+		}
+	}
+
+	private void addClient() {
+
+	}
+
+	private void getView() {
+
+	}
+
+	private void prePrepare() {
+
+	}
+
+	private void prepare(){
+
+	}
+
+	private void commit(){
+
+	}
+
+	private void changeView(){
+
+	}
+
+	public void handler(String packet) throws Exception {
+		if (!JSON.isValid(packet)) {
+			return;
+		}
+		PBFTMsg pbftMsg = JSON.parseObject(packet, PBFTMsg.class);
+		if (pbftMsg == null) {
+			log.error("Error");
+			return;
+		}
+
+		if (pbftMsg.getMsgType() != MsgType.GET_VIEW && !MsgUtil.afterMsg(pbftMsg)) {
+			log.warn("Warning");
+			return;
+		}
+		//this.msgQueue.put(pbftMsg);
+		doAction(pbftMsg);
 	}
 }

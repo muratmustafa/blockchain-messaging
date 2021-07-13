@@ -87,8 +87,9 @@ public class Node extends Thread implements Serializable {
         Main.controllerHandle.setLOG(pubKey);
 
         replayMsg.setBody(pubKey);
+        replayMsg.setUserName(userName);
 
-        broadCastMessage("NEWUSER," + userName + "," + JSON.toJSONString(replayMsg));
+        broadCastMessage(JSON.toJSONString(replayMsg));
     }
 
     @Override
@@ -183,14 +184,14 @@ public class Node extends Thread implements Serializable {
 
                 System.out.println("\nRECEIVED --> " + packet);
 
-                handler(packet);
+                PBFTMsg pbftMsg = JSON.parseObject(packet, PBFTMsg.class);
 
-                if (packet.startsWith("BLOCKCHAIN")) {
-                    String[] data = packet.split(",");
-                    blockChain = (BlockChain) SerializeObject.deserializeObject(data[1]);
-                } else if (packet.startsWith("HASHTABLE")) {
-                    String[] data = packet.split(",");
-                    publicKeys = (Hashtable<String, PublicKey>) SerializeObject.deserializeObject(data[1]);
+                if (pbftMsg.getMsgType() == MsgType.BLOCKCHAIN) {
+                    blockChain = (BlockChain) SerializeObject.deserializeObject(pbftMsg.getBody());
+                } else if (pbftMsg.getMsgType() == MsgType.HASHTABLE) {
+                    publicKeys = (Hashtable<String, PublicKey>) SerializeObject.deserializeObject(pbftMsg.getBody());
+                }else{
+                    handler(packet);
                 }
             }
         } catch (Exception e) {

@@ -17,7 +17,10 @@ public class PBFT {
         if (AllNodeCommonMsg.allNodeAddressMap.size() < 3) {
             log.warn("The nodes in the blockchain are less than or equal to 3");
             node.setViewOK(true);
-            ClientUtil.publishPublicKey();
+            //ClientUtil.publishPublicKey();
+
+            node.broadcastPublicKey();
+
             return true;
         }
 
