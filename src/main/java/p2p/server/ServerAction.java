@@ -146,7 +146,7 @@ public class ServerAction {
             info.setAddress(address);
 
             AllNodeCommonMsg.allNodeAddressMap.put(msg.getNode(), info);
-            AllNodeCommonMsg.publicKeyMap.put(msg.getNode(), replayJson.getPublicKey());
+            //AllNodeCommonMsg.publicKeyMap.put(msg.getNode(), replayJson.getPublicKey());
 
             log.info(String.format("%s：%s", node, info));
             /*if (context != null) {

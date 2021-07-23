@@ -9,6 +9,7 @@ import sample.*;
 import util.MsgUtil;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -50,21 +51,18 @@ public class Miner extends Node {
 
 				PBFTMsg pbftMsg = JSON.parseObject(packet, PBFTMsg.class);
 
-
 				if(pbftMsg.getMsgType() == MsgType.MESSAGE) {
-
 					Message m = (Message) SerializeObject.deserializeObject(pbftMsg.getBody());
 					blockChain.addMessage(m);
 					broadcastEverything();
 				}else if(pbftMsg.getMsgType() == MsgType.NEW_USER) {
-					String[] data = packet.split(",");
 					String newUserName = pbftMsg.getUserName();
 					PublicKey newPublicKey = (PublicKey) SerializeObject.deserializeObject(pbftMsg.getBody());
-					if(publicKeys.containsKey(newUserName)) {
-						broadCastMessage("DENIEDNEWUSER," + newUserName);
+					if(publicKeyMap.containsKey(newUserName)) {
+						broadCastMessage("DENIED NEW USER: " + newUserName);
 					}
 					else {
-						publicKeys.put(newUserName, newPublicKey);
+						publicKeyMap.put(newUserName, newPublicKey);
 						broadcastAllPublicKeys();
 					}
 				}
@@ -77,7 +75,7 @@ public class Miner extends Node {
 	}
 
 	private void broadcastAllPublicKeys() throws IOException {
-		String hashtableData = SerializeObject.serializeObject(publicKeys);
+		String hashtableData = SerializeObject.serializeObject((Serializable) publicKeyMap);
 		//String message = "HASHTABLE," + hashtableData;
 
 		PBFTMsg message = new PBFTMsg(MsgType.HASHTABLE, -1);

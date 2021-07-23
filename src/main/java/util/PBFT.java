@@ -11,7 +11,7 @@ import java.io.IOException;
 @Slf4j
 public class PBFT {
 
-    private Node node = Node.getInstance();
+    private final Node node = Node.getInstance();
 
     public boolean pubView() throws IOException {
         if (AllNodeCommonMsg.allNodeAddressMap.size() < 3) {

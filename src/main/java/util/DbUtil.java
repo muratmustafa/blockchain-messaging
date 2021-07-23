@@ -95,7 +95,7 @@ public class DbUtil {
     public static void addDaotoList(int node, PBFTMsg msg) {
         DbDao dbDao = new DbDao();
         dbDao.setNode(node);
-        dbDao.setPublicKey(AllNodeCommonMsg.publicKeyMap.get(node));
+        //dbDao.setPublicKey(AllNodeCommonMsg.publicKeyMap.get(node));
         dbDao.setTime(msg.getTime());
         dbDao.setViewNum(msg.getViewNum());
         MsgCollection.getInstance().getDbDaos().add(dbDao);

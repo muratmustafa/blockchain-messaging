@@ -11,6 +11,8 @@ public class PBFTMsg {
 
     private String userName;
 
+    private String receiverName;
+
     private int msgType;
 
     private int node;

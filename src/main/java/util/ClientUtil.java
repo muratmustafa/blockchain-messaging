@@ -64,12 +64,12 @@ public class ClientUtil {
         msg.setNode(Node.getInstance().getIndex());
         msg.setToNode(-1);
 
-        if (msg.getMsgType() != MsgType.CLIENT_REPLAY && msg.getMsgType() != MsgType.GET_VIEW) {
+        /*if (msg.getMsgType() != MsgType.CLIENT_REPLAY && msg.getMsgType() != MsgType.GET_VIEW) {
             if (!MsgUtil.preMsg(0, msg)) {
                 log.error("Error");
                 return;
             }
-        }
+        }*/
 
         String json = JSON.toJSONString(msg);
 

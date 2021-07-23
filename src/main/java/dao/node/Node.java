@@ -17,6 +17,7 @@ import p2p.common.MsgPacket;
 import sample.*;
 import util.ClientUtil;
 import util.MsgUtil;
+import util.PBFT;
 import util.PBFTUtil;
 
 import java.io.IOException;
@@ -28,10 +29,7 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 @EqualsAndHashCode(callSuper = true)
@@ -41,7 +39,7 @@ public class Node extends Thread implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    protected Hashtable<String, PublicKey> publicKeys = new Hashtable<>();
+    protected static Map<String, PublicKey> publicKeyMap = AllNodeCommonMsg.publicKeyMap;
 
     private boolean isRun = false;
     private volatile boolean viewOK;
@@ -81,15 +79,15 @@ public class Node extends Thread implements Serializable {
 
     public void broadcastPublicKey() throws IOException {
 
-        PBFTMsg replayMsg = new PBFTMsg(MsgType.CLIENT_REPLAY, index);
+        PBFTMsg msg = new PBFTMsg(MsgType.NEW_USER, index);
 
         String pubKey = SerializeObject.serializeObject(publicKey);
         Main.controllerHandle.setLOG(pubKey);
 
-        replayMsg.setBody(pubKey);
-        replayMsg.setUserName(userName);
+        msg.setBody(pubKey);
+        msg.setUserName(userName);
 
-        broadCastMessage(JSON.toJSONString(replayMsg));
+        broadCastMessage(msg);
     }
 
     @Override
@@ -103,6 +101,7 @@ public class Node extends Thread implements Serializable {
                         + "Body      : " + plainText + "\n"
                         + "Timestamp : " + createTimestamp;
 
+        /*
         PublicKey receiverKey = getUserPublicKey(receiverName);
         if (receiverKey == null) {
             System.out.println("RECEIVER " + receiverName + " DOES NOT EXIST");
@@ -111,16 +110,39 @@ public class Node extends Thread implements Serializable {
         byte[] cipherText = MessageCodec.encrypt(receiverKey, plainMsg);
         System.out.println(Arrays.toString(cipherText));
         Message m = new Message(cipherText, receiverName);
-
+        */
         PBFTMsg msg = new PBFTMsg(MsgType.PRE_PREPARE, 0);
-        msg.setBody(Arrays.toString(cipherText));
-        ClientUtil.prePrepare(msg);
+        msg.setBody(plainMsg);
+        msg.setReceiverName(receiverName);
+        //ClientUtil.prePrepare(msg);
 
-        broadCastMessage("MESSAGE," + SerializeObject.serializeObject(m));
+        msg.setNode(Node.getInstance().getIndex());
+        msg.setToNode(-1);
+        msg.setViewNum(AllNodeCommonMsg.view);
+
+        if(this.index != AllNodeCommonMsg.getPriIndex()){
+            log.warn("The node is not the primary node and cannot send pre-prepare messages");
+            return;
+        }
+
+        msg.setMsgType(MsgType.PRE_PREPARE);
+        broadCastMessage(msg);
+
+        //broadCastMessage("MESSAGE," + SerializeObject.serializeObject(m));
     }
 
-    private void broadCastMessage(String m) throws IOException {
-        Broadcast.broadcast(m, Network.availableInterfaces().get(0), port);
+    private void broadCastMessage(PBFTMsg msg) throws IOException {
+
+
+        if (msg.getMsgType() != MsgType.NEW_USER && msg.getMsgType() != MsgType.GET_VIEW) {
+            if (!MsgUtil.preMsg(msg)) {
+                log.error("Message encryption failed");
+                return;
+            }
+        }
+
+        String json = JSON.toJSONString(msg);
+        Broadcast.broadcast(json, Network.availableInterfaces().get(0), port);
     }
 
     String decryptMessage(byte[] cipherText) throws Exception {
@@ -163,10 +185,10 @@ public class Node extends Thread implements Serializable {
         System.out.println("-----------------------------------------");
     }
 
-    public PublicKey getUserPublicKey(String receiverName) {
+    /*public PublicKey getUserPublicKey(String receiverName) {
         if (!publicKeys.containsKey(receiverName)) return null;
         return publicKeys.get(receiverName);
-    }
+    }*/
 
     @SuppressWarnings("unchecked")
     public void recieve(int port) {
@@ -189,7 +211,7 @@ public class Node extends Thread implements Serializable {
                 if (pbftMsg.getMsgType() == MsgType.BLOCKCHAIN) {
                     blockChain = (BlockChain) SerializeObject.deserializeObject(pbftMsg.getBody());
                 } else if (pbftMsg.getMsgType() == MsgType.HASHTABLE) {
-                    publicKeys = (Hashtable<String, PublicKey>) SerializeObject.deserializeObject(pbftMsg.getBody());
+                    publicKeyMap = (Map<String, PublicKey>) SerializeObject.deserializeObject(pbftMsg.getBody());
                 }else{
                     handler(packet);
                 }

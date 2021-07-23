@@ -7,6 +7,7 @@ import dao.node.Node;
 import dao.pbft.PBFTMsg;
 import lombok.extern.slf4j.Slf4j;
 
+import java.security.PublicKey;
 import java.util.Map;
 
 @Slf4j
@@ -14,7 +15,7 @@ public class MsgUtil {
 
     private static RSA selfRsa = new RSA(Node.getInstance().getPrivateKey(), Node.getInstance().getPublicKey());
 
-    private static Map<Integer, String> publicKeyMap = AllNodeCommonMsg.publicKeyMap;
+    private static final Map<String, PublicKey> publicKeyMap = AllNodeCommonMsg.publicKeyMap;
 
     public static void signMsg(PBFTMsg msg) {
         String hash = String.valueOf(msg.hashCode());
@@ -22,9 +23,9 @@ public class MsgUtil {
         msg.setSign(sign);
     }
 
-    private static boolean encryptMsg(int index, PBFTMsg msg) {
-        String publicKey;
-        if ((publicKey = publicKeyMap.get(index)) == null) {
+    private static boolean encryptMsg(PBFTMsg msg) {
+        PublicKey publicKey;
+        if ((publicKey = publicKeyMap.get(msg.getReceiverName())) == null) {
             log.error("Error");
             return false;
         }
@@ -62,8 +63,8 @@ public class MsgUtil {
         return true;
     }
 
-    public static boolean preMsg(int index, PBFTMsg msg) {
-        if (!encryptMsg(index, msg)) {
+    public static boolean preMsg(PBFTMsg msg) {
+        if (!encryptMsg(msg)) {
             return false;
         }
         signMsg(msg);
@@ -78,7 +79,7 @@ public class MsgUtil {
     }
 
     public static boolean isRealMsg(PBFTMsg msg) {
-        String publicKey = publicKeyMap.get(msg.getNode());
+        PublicKey publicKey = publicKeyMap.get(msg.getUserName());
         RSA rsa;
         try {
             rsa = new RSA(null, publicKey);
