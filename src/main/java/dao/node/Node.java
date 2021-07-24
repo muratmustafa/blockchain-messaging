@@ -53,6 +53,7 @@ public class Node extends Thread implements Serializable {
     public BlockChain blockChain;
 
     private BlockingQueue<PBFTMsg> msgQueue = MsgCollection.getInstance().getMsgQueue();
+    private MsgCollection msgCollection = MsgCollection.getInstance();
 
     private static Node node;
 
@@ -119,20 +120,33 @@ public class Node extends Thread implements Serializable {
         msg.setNode(Node.getInstance().getIndex());
         msg.setToNode(-1);
         msg.setViewNum(AllNodeCommonMsg.view);
+        msg.setMsgType(MsgType.PRE_PREPARE);
 
         if(this.index != AllNodeCommonMsg.getPriIndex()){
             log.warn("The node is not the primary node and cannot send pre-prepare messages");
             return;
         }
 
-        msg.setMsgType(MsgType.PRE_PREPARE);
+
         broadCastMessage(msg);
+
+        MsgCollection msgCollection = MsgCollection.getInstance();
+        msg.setMsgType(MsgType.PREPARE);
+        msgCollection.getVotePrePrepare().add(msg.getId());
+        if (!PBFTUtil.checkMsg(msg)) {
+            return;
+        }
+        try {
+            msgCollection.getMsgQueue().put(msg);
+            broadCastMessage(msg);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         //broadCastMessage("MESSAGE," + SerializeObject.serializeObject(m));
     }
 
     private void broadCastMessage(PBFTMsg msg) throws IOException {
-
 
         if (msg.getMsgType() != MsgType.NEW_USER && msg.getMsgType() != MsgType.GET_VIEW) {
             if (!MsgUtil.preMsg(msg)) {
@@ -213,7 +227,7 @@ public class Node extends Thread implements Serializable {
                 } else if (pbftMsg.getMsgType() == MsgType.HASHTABLE) {
                     publicKeyMap = (Map<String, PublicKey>) SerializeObject.deserializeObject(pbftMsg.getBody());
                 }else{
-                    handler(packet);
+                    handler(pbftMsg);
                 }
             }
         } catch (Exception e) {
@@ -230,38 +244,26 @@ public class Node extends Thread implements Serializable {
                 changeView();
                 break;
             case MsgType.PRE_PREPARE:
-                prePrepare();
+                prePrepare(msg);
                 break;
             case MsgType.PREPARE:
-                prepare();
+                prepare(msg);
                 break;
             case MsgType.COMMIT:
-                commit();
-            case MsgType.CLIENT_REPLAY:
+                commit(msg);
+/*            case MsgType.CLIENT_REPLAY:
                 addClient();
-                break;
+                break;*/
             default:
                 break;
         }
     }
 
-    private void addClient() {
+    /*private void addClient() {
 
-    }
+    }*/
 
     private void getView() {
-
-    }
-
-    private void prePrepare() {
-
-    }
-
-    private void prepare(){
-
-    }
-
-    private void commit(){
 
     }
 
@@ -269,21 +271,60 @@ public class Node extends Thread implements Serializable {
 
     }
 
-    public void handler(String packet) throws Exception {
-        if (!JSON.isValid(packet)) {
-            return;
-        }
-        PBFTMsg pbftMsg = JSON.parseObject(packet, PBFTMsg.class);
-        if (pbftMsg == null) {
-            log.error("Error");
+    private void prePrepare(PBFTMsg msg) {
+        msgCollection.getVotePrePrepare().add(msg.getId());
+
+        if (!PBFTUtil.checkMsg(msg)) {
             return;
         }
 
-        if (pbftMsg.getMsgType() != MsgType.GET_VIEW && !MsgUtil.afterMsg(pbftMsg)) {
+        msg.setMsgType(MsgType.PREPARE);
+        try {
+            msgCollection.getMsgQueue().put(msg);
+            broadCastMessage(msg);
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void prepare(PBFTMsg msg){
+        log.info(msgCollection.getVotePrePrepare().contains(msg) + ">>>>");
+        if (!msgCollection.getVotePrePrepare().contains(msg.getId()) || !PBFTUtil.checkMsg(msg)) {
+            return;
+        }
+        long count = msgCollection.getAgreePrepare().incrementAndGet(msg.getId());
+        if (count >= AllNodeCommonMsg.getAgreeNum()) {
+            msgCollection.getVotePrePrepare().remove(msg.getId());
+            msgCollection.getAgreePrepare().remove(msg.getId());
+
+            // Ready to Commit phase
+            msg.setMsgType(MsgType.COMMIT);
+            try {
+                msgCollection.getMsgQueue().put(msg);
+                broadCastMessage(msg);
+            } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void commit(PBFTMsg msg){
+        long count = msgCollection.getAgreeCommit().incrementAndGet(msg.getId());
+
+        if (count >= AllNodeCommonMsg.getAgreeNum()) {
+            log.info("The data is consistent, the commit is successful, and the data can be generated into blocks");
+            msgCollection.getAgreeCommit().remove(msg.getId());
+            PBFTUtil.save(msg);
+        }
+    }
+
+    public void handler(PBFTMsg msg) throws Exception {
+
+        if (msg.getMsgType() != MsgType.GET_VIEW && !MsgUtil.afterMsg(msg)) {
             log.warn("Warning");
             return;
         }
         //this.msgQueue.put(pbftMsg);
-        doAction(pbftMsg);
+        doAction(msg);
     }
 }

@@ -26,7 +26,7 @@ public class MsgUtil {
     private static boolean encryptMsg(PBFTMsg msg) {
         PublicKey publicKey;
         if ((publicKey = publicKeyMap.get(msg.getReceiverName())) == null) {
-            log.error("Error");
+            log.error("Error! Receiver " + msg.getReceiverName() + " doesn't exist.");
             return false;
         }
 
