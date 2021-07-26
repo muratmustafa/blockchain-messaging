@@ -224,8 +224,20 @@ public class Node extends Thread implements Serializable {
 
                 if (pbftMsg.getMsgType() == MsgType.BLOCKCHAIN) {
                     blockChain = (BlockChain) SerializeObject.deserializeObject(pbftMsg.getBody());
-                } else if (pbftMsg.getMsgType() == MsgType.HASHTABLE) {
+                } /*else if (pbftMsg.getMsgType() == MsgType.HASHTABLE) {
                     publicKeyMap = (Map<String, PublicKey>) SerializeObject.deserializeObject(pbftMsg.getBody());
+                }*/ else if (pbftMsg.getMsgType() == MsgType.NEW_USER) {
+                    String newUserName = pbftMsg.getUserName();
+                    PublicKey newPublicKey = (PublicKey) SerializeObject.deserializeObject(pbftMsg.getBody());
+                    if(publicKeyMap.containsKey(newUserName)) {
+                        //broadCastMessage("DENIED NEW USER: " + newUserName);
+                        log.warn("DENIED NEW USER: " + newUserName);
+                    }
+                    else {
+                        publicKeyMap.put(newUserName, newPublicKey);
+                        log.debug("New User Saved: " + newUserName + "/" + newPublicKey);
+                        //broadcastAllPublicKeys();
+                    }
                 }else{
                     handler(pbftMsg);
                 }
