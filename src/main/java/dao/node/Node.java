@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -217,15 +218,19 @@ public class Node extends Thread implements Serializable {
 
             while (true) {
 
-                if(isFromPC(receivePacket.getAddress())){
-                    System.out.println("this pc");
-                    continue;
-                }
+
 
                 serverSocket.receive(receivePacket);
                 String packet = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
-                System.out.println("\nRECEIVED --> " + packet);
+                System.out.println("\nRECEIVED --> " + receivePacket.getAddress());
+
+
+
+                if(isFromPC(receivePacket.getAddress())){
+                    System.out.println("this pc");
+                    continue;
+                }
 
                 PBFTMsg pbftMsg = JSON.parseObject(packet, PBFTMsg.class);
 
@@ -242,7 +247,7 @@ public class Node extends Thread implements Serializable {
                     }
                     else {
                         publicKeyMap.put(newUserName, newPublicKey);
-                        log.debug("New User Saved: " + newUserName + "/" + newPublicKey);
+                        log.debug("New User Saved: " + newUserName);
                         broadcastPublicKey();
                     }
                 }else{
@@ -254,9 +259,16 @@ public class Node extends Thread implements Serializable {
         }
     }
 
-    public boolean isFromPC(InetAddress address) {
+    public boolean isFromPC(InetAddress address) throws UnknownHostException {
+
+        InetAddress ip;
+        String hostname;
+
+        ip = InetAddress.getLocalHost();
+        hostname = ip.getHostName();
+
         String rawAddress = address.toString();
-        if(rawAddress.equals("/127.0.0.1")) return true;
+        if(rawAddress.equals(hostname)) return true;
         else return false;
     }
 
