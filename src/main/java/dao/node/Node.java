@@ -214,7 +214,15 @@ public class Node extends Thread implements Serializable {
             System.out.printf("Listening on udp:%s:%d%n", InetAddress.getLocalHost().getHostAddress(), port);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
+
+
             while (true) {
+
+                if(isFromPC(receivePacket.getAddress())){
+                    System.out.println("this pc");
+                    continue;
+                }
+
                 serverSocket.receive(receivePacket);
                 String packet = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
@@ -233,6 +241,12 @@ public class Node extends Thread implements Serializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isFromPC(InetAddress address) {
+        String rawAddress = address.toString();
+        if(rawAddress.equals("/127.0.0.1")) return true;
+        else return false;
     }
 
     public void doAction(PBFTMsg msg){
