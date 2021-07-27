@@ -51,8 +51,7 @@ public class Controller implements Initializable {
         logs.setText("NODE CREATED");
 
         if (new PBFT().pubView()) {
-            n.start();
-            Thread.sleep(500);
+
             //n.broadcastPublicKey();
             get.setDisable(true);
         }else{

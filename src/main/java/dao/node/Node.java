@@ -218,14 +218,10 @@ public class Node extends Thread implements Serializable {
 
             while (true) {
 
-
-
                 serverSocket.receive(receivePacket);
                 String packet = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
                 System.out.println("\nRECEIVED --> " + receivePacket.getAddress());
-
-
 
                 if(isFromPC(receivePacket.getAddress())){
                     System.out.println("this pc");
