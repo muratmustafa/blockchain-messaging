@@ -22,10 +22,7 @@ import util.PBFTUtil;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -257,16 +254,38 @@ public class Node extends Thread implements Serializable {
 
     public boolean isFromPC(InetAddress address) throws UnknownHostException {
 
-        InetAddress ip;
-        String hostname;
+        String ip = null;
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // filters out 127.0.0.1 and inactive interfaces
+                if (iface.isLoopback() || !iface.isUp())
+                    continue;
 
-        ip = InetAddress.getLocalHost();
-        hostname = ip.getHostName();
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while(addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
 
-        String rawAddress = address.toString();
-        if(rawAddress.equals(hostname)) return true;
-        else return false;
+                    // *EDIT*
+                    if (addr instanceof Inet6Address) continue;
+
+                    ip = addr.getHostAddress();
+
+                    ip = "/" + ip;
+                    System.out.println(iface.getDisplayName() + " " + ip);
+                    if (ip.equals(address.toString()))
+                        return true;
+
+                }
+            }
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+
+        return false;
     }
+
 
     public void doAction(PBFTMsg msg){
         switch (msg.getMsgType()) {

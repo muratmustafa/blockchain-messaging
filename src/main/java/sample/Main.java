@@ -34,12 +34,14 @@ public class Main extends Application{
 		//Miner pro = new Miner();
 		//pro.start();
 
-		/*User Mode*/
-		launch(args);
-
 		Node n = Node.getInstance();
 		n.start();
 		Thread.sleep(500);
+
+		/*User Mode*/
+		launch(args);
+
+
 
 		System.exit(0);
 
