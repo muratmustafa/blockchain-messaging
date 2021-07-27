@@ -115,6 +115,7 @@ public class Node extends Thread implements Serializable {
         PBFTMsg msg = new PBFTMsg(MsgType.PRE_PREPARE, 0);
         msg.setBody(plainMsg);
         msg.setReceiverName(receiverName);
+        msg.setUserName(userName);
         //ClientUtil.prePrepare(msg);
 
         msg.setNode(Node.getInstance().getIndex());
@@ -214,8 +215,6 @@ public class Node extends Thread implements Serializable {
             System.out.printf("Listening on udp:%s:%d%n", InetAddress.getLocalHost().getHostAddress(), port);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
-
-
             while (true) {
 
                 if(isFromPC(receivePacket.getAddress())){
@@ -244,7 +243,7 @@ public class Node extends Thread implements Serializable {
                     else {
                         publicKeyMap.put(newUserName, newPublicKey);
                         log.debug("New User Saved: " + newUserName + "/" + newPublicKey);
-                        //broadcastAllPublicKeys();
+                        broadcastPublicKey();
                     }
                 }else{
                     handler(pbftMsg);
