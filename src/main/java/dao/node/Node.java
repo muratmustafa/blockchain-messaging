@@ -218,12 +218,13 @@ public class Node extends Thread implements Serializable {
                 serverSocket.receive(receivePacket);
                 String packet = new String(receivePacket.getData(), 0, receivePacket.getLength());
 
-                System.out.println("\nRECEIVED --> " + receivePacket.getAddress());
-
                 if(isFromPC(receivePacket.getAddress())){
-                    System.out.println("this pc");
                     continue;
                 }
+
+                System.out.println("\nRECEIVED --> " + receivePacket.getAddress());
+
+                System.out.println(packet);
 
                 PBFTMsg pbftMsg = JSON.parseObject(packet, PBFTMsg.class);
 
@@ -241,7 +242,7 @@ public class Node extends Thread implements Serializable {
                     else {
                         publicKeyMap.put(newUserName, newPublicKey);
                         log.debug("New User Saved: " + newUserName);
-                        broadcastPublicKey();
+                        //broadcastPublicKey();
                     }
                 }else{
                     handler(pbftMsg);
@@ -273,7 +274,7 @@ public class Node extends Thread implements Serializable {
                     ip = addr.getHostAddress();
 
                     ip = "/" + ip;
-                    System.out.println(iface.getDisplayName() + " " + ip);
+                    //System.out.println(iface.getDisplayName() + " " + ip);
                     if (ip.equals(address.toString()))
                         return true;
 
