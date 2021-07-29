@@ -38,6 +38,7 @@ public class Node extends Thread implements Serializable {
     private static final long serialVersionUID = 1L;
 
     protected static Map<String, PublicKey> publicKeyMap = AllNodeCommonMsg.publicKeyMap;
+    protected static Map<String, NodeBasicInfo> allNodeAddressMap = AllNodeCommonMsg.allNodeAddressMap;
 
     private boolean isRun = false;
     private volatile boolean viewOK;
@@ -126,7 +127,13 @@ public class Node extends Thread implements Serializable {
             return;
         }
 
-        broadCastMessage(msg);
+        /*for (Map.Entry<String, NodeBasicInfo> entry : allNodeAddressMap.entrySet()){
+            System.out.println("Key = " + entry.getKey() +
+                    ", Value = " + entry.getValue().getAddress().getIp());
+        }*/
+
+        //broadCastMessage(msg);
+        publishMessage(msg);
 
         MsgCollection msgCollection = MsgCollection.getInstance();
         msg.setMsgType(MsgType.PREPARE);
@@ -136,7 +143,8 @@ public class Node extends Thread implements Serializable {
         }
         try {
             msgCollection.getMsgQueue().put(msg);
-            broadCastMessage(msg);
+            //broadCastMessage(msg);
+            publishMessage(msg);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -144,14 +152,31 @@ public class Node extends Thread implements Serializable {
         //broadCastMessage("MESSAGE," + SerializeObject.serializeObject(m));
     }
 
+    private void publishMessage(PBFTMsg msg) throws IOException {
+        for (Map.Entry<String, NodeBasicInfo> entry : allNodeAddressMap.entrySet()){
+            System.out.println("Key = " + entry.getKey() +
+                    ", Value = " + entry.getValue().getAddress().getIp());
+
+            if (msg.getMsgType() != MsgType.NEW_USER && msg.getMsgType() != MsgType.GET_VIEW) {
+                if (!MsgUtil.preMsg(entry.getKey(), msg)) {
+                    log.error("Message encryption failed");
+                    return;
+                }
+            }
+
+            String json = JSON.toJSONString(msg);
+            Broadcast.broadcast(json, InetAddress.getByName(entry.getValue().getAddress().getIp()), port);
+        }
+    }
+
     private void broadCastMessage(PBFTMsg msg) throws IOException {
 
-        if (msg.getMsgType() != MsgType.NEW_USER && msg.getMsgType() != MsgType.GET_VIEW) {
+        /*if (msg.getMsgType() != MsgType.NEW_USER && msg.getMsgType() != MsgType.GET_VIEW) {
             if (!MsgUtil.preMsg(msg)) {
                 log.error("Message encryption failed");
                 return;
             }
-        }
+        }*/
 
         String json = JSON.toJSONString(msg);
         Broadcast.broadcast(json, Network.availableInterfaces().get(0), port);
@@ -242,7 +267,7 @@ public class Node extends Thread implements Serializable {
 
 
                         NodeAddress address = new NodeAddress();
-                        address.setIp(receivePacket.getAddress().toString());
+                        address.setIp(receivePacket.getAddress().toString().substring(1));
                         address.setPort(Const.PORT);
                         NodeBasicInfo info = new NodeBasicInfo();
                         info.setUserName(newUserName);
@@ -349,7 +374,8 @@ public class Node extends Thread implements Serializable {
         msg.setMsgType(MsgType.PREPARE);
         try {
             msgCollection.getMsgQueue().put(msg);
-            broadCastMessage(msg);
+            //broadCastMessage(msg);
+            publishMessage(msg);
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
@@ -369,7 +395,8 @@ public class Node extends Thread implements Serializable {
             msg.setMsgType(MsgType.COMMIT);
             try {
                 msgCollection.getMsgQueue().put(msg);
-                broadCastMessage(msg);
+                //broadCastMessage(msg);
+                publishMessage(msg);
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }

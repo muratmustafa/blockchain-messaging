@@ -23,10 +23,10 @@ public class MsgUtil {
         msg.setSign(sign);
     }
 
-    private static boolean encryptMsg(PBFTMsg msg) {
+    private static boolean encryptMsg(String userName, PBFTMsg msg) {
         PublicKey publicKey;
-        if ((publicKey = publicKeyMap.get(msg.getReceiverName())) == null) {
-            log.error("Error! Receiver " + msg.getReceiverName() + " doesn't exist.");
+        if ((publicKey = publicKeyMap.get(userName)) == null) {
+            log.error("Error! Receiver " + userName + " doesn't exist.");
             return false;
         }
 
@@ -63,8 +63,8 @@ public class MsgUtil {
         return true;
     }
 
-    public static boolean preMsg(PBFTMsg msg) {
-        if (!encryptMsg(msg)) {
+    public static boolean preMsg(String userName, PBFTMsg msg) {
+        if (!encryptMsg(userName, msg)) {
             return false;
         }
         signMsg(msg);
