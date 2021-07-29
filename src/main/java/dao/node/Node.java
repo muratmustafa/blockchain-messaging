@@ -153,6 +153,9 @@ public class Node extends Thread implements Serializable {
     }
 
     private void publishMessage(PBFTMsg msg) throws IOException {
+
+        msg.setUserName(userName);
+
         for (Map.Entry<String, NodeBasicInfo> entry : allNodeAddressMap.entrySet()){
             System.out.println("Key = " + entry.getKey() +
                     ", Value = " + entry.getValue().getAddress().getIp());
