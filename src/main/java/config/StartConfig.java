@@ -75,21 +75,21 @@ public class StartConfig {
             //nodeAddress.setPort(replayJson.getPort());
             NodeBasicInfo nodeBasicInfo = new NodeBasicInfo();
             nodeBasicInfo.setAddress(nodeAddress);
-            nodeBasicInfo.setIndex(replayJson.getIndex());
-            AllNodeCommonMsg.allNodeAddressMap.put(replayJson.getIndex(), nodeBasicInfo);
+            //nodeBasicInfo.setIndex(replayJson.getIndex());
+            //AllNodeCommonMsg.allNodeAddressMap.put(replayJson.getIndex(), nodeBasicInfo);
             //AllNodeCommonMsg.publicKeyMap.put(replayJson.getIndex(), replayJson.getPublicKey());
         }
 
-        if (AllNodeCommonMsg.allNodeAddressMap.values().size() < 3 && !AllNodeCommonMsg.allNodeAddressMap.containsKey(node.getIndex())) {
+        /*if (AllNodeCommonMsg.allNodeAddressMap.values().size() < 3 && !AllNodeCommonMsg.allNodeAddressMap.containsKey(node.getIndex())) {
             PBFTUtil.writeIpToFile(node);
             return true;
-        }
-        if (AllNodeCommonMsg.allNodeAddressMap.containsKey(node.getIndex())) {
+        }*/
+        /*if (AllNodeCommonMsg.allNodeAddressMap.containsKey(node.getIndex())) {
             log.error("Error");
             return false;
-        }
+        }*/
         log.info(String.format("ip.json %s", ipJsonStr.size()));
-        log.info(String.format("%s", AllNodeCommonMsg.allNodeAddressMap.values().size()));
-        return AllNodeCommonMsg.allNodeAddressMap.values().size() == ipJsonStr.size();
+        //log.info(String.format("%s", AllNodeCommonMsg.allNodeAddressMap.values().size()));
+        return true;//AllNodeCommonMsg.allNodeAddressMap.values().size() == ipJsonStr.size();
     }
 }

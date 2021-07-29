@@ -142,10 +142,10 @@ public class ServerAction {
             //address.setIp(replayJson.getIp());
             //address.setPort(replayJson.getPort());
             NodeBasicInfo info = new NodeBasicInfo();
-            info.setIndex(msg.getNode());
+            //info.setIndex(msg.getNode());
             info.setAddress(address);
 
-            AllNodeCommonMsg.allNodeAddressMap.put(msg.getNode(), info);
+            //AllNodeCommonMsg.allNodeAddressMap.put(msg.getNode(), info);
             //AllNodeCommonMsg.publicKeyMap.put(msg.getNode(), replayJson.getPublicKey());
 
             log.info(String.format("%s：%s", node, info));

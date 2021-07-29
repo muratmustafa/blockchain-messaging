@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class NodeBasicInfo {
     private NodeAddress address;
-    private int index;
+    private String userName;
 }

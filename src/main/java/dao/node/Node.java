@@ -126,7 +126,6 @@ public class Node extends Thread implements Serializable {
             return;
         }
 
-
         broadCastMessage(msg);
 
         MsgCollection msgCollection = MsgCollection.getInstance();
@@ -240,7 +239,20 @@ public class Node extends Thread implements Serializable {
                         log.warn("DENIED NEW USER: " + newUserName);
                     }
                     else {
-                        publicKeyMap.put(newUserName, newPublicKey);
+
+
+                        NodeAddress address = new NodeAddress();
+                        address.setIp(receivePacket.getAddress().toString());
+                        address.setPort(Const.PORT);
+                        NodeBasicInfo info = new NodeBasicInfo();
+                        info.setUserName(newUserName);
+                        info.setAddress(address);
+
+                        AllNodeCommonMsg.allNodeAddressMap.put(newUserName, info);
+                        AllNodeCommonMsg.publicKeyMap.put(newUserName, newPublicKey);
+
+                        //publicKeyMap.put(newUserName, newPublicKey);
+
                         log.debug("New User Saved: " + newUserName);
                         //broadcastPublicKey();
                     }
@@ -325,6 +337,9 @@ public class Node extends Thread implements Serializable {
     }
 
     private void prePrepare(PBFTMsg msg) {
+
+        log.info(String.format("pre-prepare：%s", msg));
+
         msgCollection.getVotePrePrepare().add(msg.getId());
 
         if (!PBFTUtil.checkMsg(msg)) {

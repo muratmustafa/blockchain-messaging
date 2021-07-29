@@ -22,7 +22,7 @@ public class AllNodeCommonMsg {
         return view % getSize();
     }
 
-    public static ConcurrentHashMap<Integer, NodeBasicInfo> allNodeAddressMap = new ConcurrentHashMap<>(100);
+    public static ConcurrentHashMap<String, NodeBasicInfo> allNodeAddressMap = new ConcurrentHashMap<>(100);
 
     public static Map<String, PublicKey> publicKeyMap = new ConcurrentHashMap<>(2<<10);
 
